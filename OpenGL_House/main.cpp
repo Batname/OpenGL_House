@@ -28,23 +28,97 @@ typedef struct {
     vec3 color;
 } GeometryData;
 
+
 // function declaration
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 GLuint LoadShaders(const char* vertexFilePath, const char* fragmentFilePath);
 
 // geometry defenitional
 GeometryData geometryData[] = {
-    vec3(-0.5f, -0.5f, 0.0f),
-    vec3(+1.0f,  0.0f, 0.0f),
+    // front
+    vec3( 0.5f,  0.5f, 0.5f), vec3(+1.0f,  0.0f, 0.0f), // 0
+    vec3( 0.5f, -0.5f, 0.5f), vec3(+1.0f,  0.0f, 0.0f), // 1
+    vec3(-0.5f, -0.5f, 0.5f), vec3(+1.0f,  0.0f, 0.0f), // 2
+    vec3(-0.5f,  0.5f, 0.5f), vec3( 1.0f,  0.0f, 0.0f), // 3
+    vec3( 0.0f,  0.8f, 0.5f), vec3( 1.0f,  1.0f, 0.0f), // 4
     
-    vec3( 0.5f, -0.5f, 0.0f),
-    vec3(+1.0f,  0.0f, 0.0f),
+    // side right
+    vec3( 0.0f,  0.8f, -0.5f), vec3(+1.0f,  0.0f, 0.0f), // 5
+    vec3( 0.5f,  0.5f, -0.5f), vec3(+1.0f,  0.0f, 0.0f), // 6
+    vec3( 0.5f,  0.5f,  0.5f), vec3(+1.0f,  0.0f, 0.0f), // 7
+    vec3( 0.0f,  0.8f,  0.5f), vec3(+1.0f,  0.0f, 0.0f), // 8
+    vec3( 0.5f, -0.5f, -0.5f), vec3(+1.0f,  0.0f, 0.0f), // 9
+    vec3( 0.5f, -0.5f,  0.5f), vec3(+1.0f,  0.0f, 0.0f), // 10
     
-    vec3( 0.0f,  0.5f, 0.0f),
-    vec3( 1.0f,  0.0f, 0.0f),
+    // side left
+    vec3( 0.0f,  0.8f, -0.5f), vec3(+1.0f,  0.0f, 0.0f), // 11
+    vec3(-0.5f,  0.5f, -0.5f), vec3(+1.0f,  0.0f, 0.0f), // 12
+    vec3(-0.5f,  0.5f,  0.5f), vec3(+1.0f,  0.0f, 0.0f), // 13
+    vec3( 0.0f,  0.8f,  0.5f), vec3(+1.0f,  0.0f, 0.0f), // 14
+    vec3(-0.5f, -0.5f, -0.5f), vec3(+1.0f,  0.0f, 0.0f), // 15
+    vec3(-0.5f, -0.5f,  0.5f), vec3(+1.0f,  0.0f, 0.0f), // 16
+    
+    // top
+    vec3( 0.5f,  0.5f, -0.5f), vec3(+1.0f,  0.0f, 0.0f), // 17
+    vec3( 0.5f,  0.5f,  0.5f), vec3(+1.0f,  0.0f, 0.0f), // 18
+    vec3( 0.0f,  0.8f,  0.5f), vec3(+1.0f,  0.0f, 0.0f), // 19
+    vec3( 0.0f,  0.8f, -0.5f), vec3(+1.0f,  0.0f, 0.0f), // 20
+
+
+    vec3( -0.5f, 0.5f,  0.5f), vec3(+1.0f,  0.0f, 0.0f), // 21
+    vec3( -0.5f, 0.5f, -0.5f), vec3(+1.0f,  0.0f, 0.0f), // 22
+    
+    // bottom
+    vec3( 0.5f, -0.5f, -0.5f), vec3(+1.0f,  0.0f, 0.0f), // 23
+    vec3( 0.5f, -0.5f,  0.5f), vec3(+1.0f,  0.0f, 0.0f), // 24
+    vec3(-0.5f, -0.5f,  0.5f), vec3(+1.0f,  0.0f, 0.0f), // 25
+    vec3(-0.5f, -0.5f, -0.5f), vec3(+1.0f,  0.0f, 0.0f), // 25
+    
+    // back
+    vec3( 0.5f,  0.5f, -0.5f), vec3( 0.0f,  0.0f, 1.0f), // 26
+    vec3( 0.5f, -0.5f, -0.5f), vec3( 0.0f,  0.0f, 1.0f), // 27
+    vec3(-0.5f, -0.5f, -0.5f), vec3( 0.0f,  0.0f, 1.0f), // 28
+    vec3(-0.5f,  0.5f, -0.5f), vec3( 0.0f,  0.0f, 1.0f), // 29
+    vec3( 0.0f,  0.8f, -0.5f), vec3( 0.0f,  0.0f, 1.0f), // 30
+
 };
 
-GLushort indices[] = { 0, 1, 2 };
+GLuint indices[] = {
+    // front
+    0, 1, 3,
+    1, 2, 3,
+    0, 3, 4,
+    
+    // side right
+    5, 6, 7,
+    7, 8, 5,
+    
+    6, 9, 10,
+    10, 7, 6,
+    
+    // side left
+    11, 12, 13,
+    13, 14, 11,
+    
+    12, 15, 16,
+    16, 13, 12,
+    
+    // top
+    17, 18, 19,
+    19, 20, 17,
+    
+    19, 20, 21,
+    21, 22, 20,
+    
+    // bottom
+    23, 24, 25,
+    25, 26, 23,
+    
+    // back
+    26, 27, 28,
+    28, 29, 26,
+    26, 29, 30,
+};
 
 GLuint numVertices = NUM_ARRAY_ELEMENTS(geometryData);
 GLuint numIndices = NUM_ARRAY_ELEMENTS(indices);
@@ -52,7 +126,7 @@ GLuint numIndices = NUM_ARRAY_ELEMENTS(indices);
 // Buffers declaration
 GLuint vertexBufferObjectID, vertexArrayObjectID, elementBufferObjectID;
 GLuint programID;
-
+GLuint fullTransformMatrixLocation;
 
 
 // MAIN
@@ -74,6 +148,7 @@ int main(int argc, const char * argv[]) {
     
     glfwGetFramebufferSize(window, &viewportWidth, &viewportHeight);
     glViewport(0, 0, viewportWidth, viewportHeight);
+    glEnable(GL_DEPTH_TEST);
     
     /*--------glfw options-----------*/
     glfwSetKeyCallback(window, key_callback);
@@ -82,12 +157,16 @@ int main(int argc, const char * argv[]) {
     /* ------ GL buffers-------------*/
     glGenVertexArrays(1, &vertexArrayObjectID);
     glGenBuffers(1, &vertexBufferObjectID);
+    glGenBuffers(1, &elementBufferObjectID);
 
     glBindVertexArray(vertexArrayObjectID);
+
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjectID);
-    
     glBufferData(GL_ARRAY_BUFFER, sizeof(geometryData), geometryData, GL_STATIC_DRAW);
-    
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObjectID);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GeometryData), (GLvoid*)0);
     glEnableVertexAttribArray(0);
     
@@ -100,22 +179,42 @@ int main(int argc, const char * argv[]) {
     
     /* ----- load programID ---------*/
     programID = LoadShaders("shaders/house.vs.glsl", "shaders/house.frag.glsl");
+    fullTransformMatrixLocation = glGetUniformLocation(programID, "fullTransformMatrix");
     
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         // Draw geometry
         glUseProgram(programID);
+    
+        mat4 fullTransformMatrix;
+        
+        mat4 projecitonMatrix = perspective(45.0f, (GLfloat)WINDOW_WIDTH / (GLfloat)WINDOW_HEIGHT, 0.1f, 100.0f);
+        mat4 viewMatrix;
+
+        mat4 modelScaleMatrix = scale(vec3(0.5f));
+        mat4 modelRotationMatrix = rotate(mat4(), radians((GLfloat)glfwGetTime() * 50.0f), vec3(0.5f, 1.0f, 0.0f));
+        mat4 modelTranslateMatrix = translate(mat4(), vec3(0.0f, 0.0f, -3.0f));
+        mat4 modelMatrix = modelTranslateMatrix * modelRotationMatrix * modelScaleMatrix;
+        
+        fullTransformMatrix = projecitonMatrix * viewMatrix * modelMatrix;
+        
+        glUniformMatrix4fv(fullTransformMatrixLocation, 1, GL_FALSE, &fullTransformMatrix[0][0]);
+
         glBindVertexArray(vertexArrayObjectID);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
         
         glfwSwapBuffers(window);
     }
     
+    
+    glDeleteVertexArrays(1, &vertexArrayObjectID);
+    glDeleteBuffers(1, &vertexBufferObjectID);
+    glDeleteBuffers(1, &elementBufferObjectID);
     glfwTerminate();
     
     return 0;
