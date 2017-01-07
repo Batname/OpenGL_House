@@ -2,6 +2,7 @@
 #include <vector>
 #include <cassert>
 #include <fstream>
+#include <cmath>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -10,6 +11,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 // MACROS
 #define NUM_ARRAY_ELEMENTS(a) sizeof(a) / sizeof(*a)
@@ -23,6 +25,21 @@ GLuint WINDOW_WIDTH = 800, WINDOW_HEIGHT = 600;
 int viewportWidth, viewportHeight;
 const char* title = "Dream house";
 
+vec3 cameraPos(0.0f, 0.0f, 3.0f);
+vec3 cameraFront(0.0f, 0.0f, -1.0f);
+vec3 cameraUp(0.0f, 1.0f, 0.0f);
+bool keys[1024];
+GLfloat yaw = -90.0f;
+GLfloat pitch = 0.0f;
+GLfloat lastX = WINDOW_WIDTH / 2.0f;
+GLfloat lastY = WINDOW_HEIGHT / 2.0f;
+bool firstMouse = true;
+
+
+GLfloat deltaTime = 0.0f;
+GLfloat lastFrame = 0.0f;
+
+
 typedef struct {
     vec3 vertices;
     vec3 color;
@@ -31,7 +48,9 @@ typedef struct {
 
 // function declaration
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 GLuint LoadShaders(const char* vertexFilePath, const char* fragmentFilePath);
+void doMovement();
 
 // geometry defenitional
 GeometryData geometryData[] = {
@@ -63,8 +82,6 @@ GeometryData geometryData[] = {
     vec3( 0.5f,  0.5f,  0.5f), vec3( 0.0f,  0.0f, 0.0f), // 18
     vec3( 0.0f,  0.8f,  0.5f), vec3( 0.0f,  0.0f, 0.0f), // 19
     vec3( 0.0f,  0.8f, -0.5f), vec3( 0.0f,  0.0f, 0.0f), // 20
-
-
     vec3( -0.5f, 0.5f,  0.5f), vec3( 0.0f,  0.0f, 0.0f), // 21
     vec3( -0.5f, 0.5f, -0.5f), vec3( 0.0f,  0.0f, 0.0f), // 22
     
@@ -152,6 +169,8 @@ int main(int argc, const char * argv[]) {
     
     /*--------glfw options-----------*/
     glfwSetKeyCallback(window, key_callback);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
     
     
     /* ------ GL buffers-------------*/
@@ -182,7 +201,12 @@ int main(int argc, const char * argv[]) {
     fullTransformMatrixLocation = glGetUniformLocation(programID, "fullTransformMatrix");
     
     while (!glfwWindowShouldClose(window)) {
+        GLfloat currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+        
         glfwPollEvents();
+        doMovement();
         
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -193,11 +217,11 @@ int main(int argc, const char * argv[]) {
         mat4 fullTransformMatrix;
         
         mat4 projecitonMatrix = perspective(45.0f, (GLfloat)WINDOW_WIDTH / (GLfloat)WINDOW_HEIGHT, 0.1f, 100.0f);
-        mat4 viewMatrix;
+        mat4 viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
         mat4 modelScaleMatrix = scale(vec3(0.5f));
-        mat4 modelRotationMatrix = rotate(mat4(), radians((GLfloat)glfwGetTime() * 50.0f), vec3(0.5f, 1.0f, 0.0f));
-        mat4 modelTranslateMatrix = translate(mat4(), vec3(0.0f, 0.0f, -3.0f));
+        mat4 modelRotationMatrix = rotate(mat4(), radians(5.0f), vec3(1.0f, 0.0f, 0.0f));
+        mat4 modelTranslateMatrix = translate(mat4(), vec3(0.0f, 0.0f, 1.0f));
         mat4 modelMatrix = modelTranslateMatrix * modelRotationMatrix * modelScaleMatrix;
         
         fullTransformMatrix = projecitonMatrix * viewMatrix * modelMatrix;
@@ -222,6 +246,66 @@ int main(int argc, const char * argv[]) {
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     if(key == GLFW_KEY_ESCAPE && GLFW_PRESS) glfwSetWindowShouldClose(window, true);
+    
+    if (key >= 0 && key < 1024) {
+        if (action == GLFW_PRESS) keys[key] = true;
+        else if (action == GLFW_RELEASE) keys[key] = false;
+    }
+}
+
+void doMovement() {
+    GLfloat cameraSpeed = 2.0f * deltaTime;
+    vec3 cross = normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    
+    if (keys[GLFW_KEY_W]) {
+        cameraPos += cameraSpeed * cameraFront;
+    }
+    if (keys[GLFW_KEY_S]) {
+        cameraPos -= cameraSpeed * cameraFront;
+    }
+    if (keys[GLFW_KEY_A]) {
+        cameraPos -= cross;
+    }
+    if (keys[GLFW_KEY_D]) {
+        cameraPos += cross;
+    }
+    
+    if (keys[GLFW_KEY_R]) {
+        cameraPos += cameraSpeed * cameraUp;
+    }
+    
+    if (keys[GLFW_KEY_F]) {
+        cameraPos -= cameraSpeed * cameraUp;
+    }
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+    
+    GLfloat xoffset = xpos - lastX;
+    GLfloat yoffset = lastY - ypos;
+    lastX = xpos;
+    lastY = ypos;
+    
+    GLfloat sensitivity = 0.05f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+    
+    yaw += xoffset;
+    pitch += yoffset;
+    
+    if(pitch > 89.0f) pitch = 89.0f;
+    if(pitch < -89.0f) pitch = -89.0f;
+    
+    vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(front);
 }
 
 GLuint LoadShaders(const char* vertexFilePath, const char* fragmentFilePath) {
